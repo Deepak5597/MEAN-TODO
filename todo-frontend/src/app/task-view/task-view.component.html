@@ -1,0 +1,172 @@
+<div class="container main-wrapper">
+    <!-- <nav class="navbar navbar-dark bg-dark">
+      <a class="navbar-brand" href="#">
+        <img src="../assets/logo-white-background.png" width="30" height="30" class="d-inline-block align-top" alt="" loading="lazy"> 
+      </a>
+      <span class="navbar-text">
+        Deepak Bisht
+      </span>
+    </nav> -->
+  
+  
+    <div class="row no-gutters">
+      <div class="col-md-4 taskblock">
+        <div class="taskblockheader">
+          <button class="btn addTaskBtn" data-toggle="modal" data-target="#createTaskModal">+</button>
+        </div>
+        <ng-container *ngIf="taskData.length;else notaskblock">
+            <ng-container *ngFor="let indTask of taskData;let i = index;">
+                <div class="task-box" [ngClass]="(selectedTaskIndex == i) ? 'task-box-active': ''" (click)="filterSubtask(i,indTask._id)">
+                    <h4 class="task-heading">{{indTask.taskName}}</h4>
+                    <p class="task-content">&nbsp;&nbsp;&nbsp;{{indTask.taskDescription}}</p>
+                </div>
+            </ng-container>
+        </ng-container>
+        <ng-template #notaskblock>
+            <div class="alert alert-secondary m-2" role="alert">
+                No Task Found !!!
+            </div>
+        </ng-template>
+      </div>
+  
+      <div class="col-md-8 subtask-block">
+          <ng-container *ngIf="filteredSubtasks.length;else nosubtaskblock"> 
+            <div class="card mb-3" *ngFor="let indSubtask of filteredSubtasks">
+                <div class="card-header">{{indSubtask.subtaskName}}
+                  <button class="btn btn-secondary pull-right" data-toggle="modal" data-target="#deleteSubtaskModal" (click)="selectedSubtaskId = indSubtask._id"><i class="fa fa-trash"></i></button>
+                  <button class="btn btn-secondary pull-right mr-2" (click)="setUpdateData(indSubtask._id)"><i class="fa fa-pencil"></i></button>
+                  <button class="btn btn-secondary pull-right mr-2" id="stautsMenu" data-toggle="dropdown">{{indSubtask.subtaskStatus}}</button>
+                  <div class="dropdown-menu" aria-labelledby="stautsMenu">
+                    <a class="dropdown-item" href="javascript:void(0);" *ngIf="indSubtask.subtaskStatus.toLowerCase() != 'pending'" (click)="changeSubtaskStatus(indSubtask._id,'Pending')">Pending</a>
+                    <a class="dropdown-item" href="javascript:void(0);" *ngIf="indSubtask.subtaskStatus.toLowerCase() != 'wip'" (click)="changeSubtaskStatus(indSubtask._id,'WIP')">WIP</a>
+                    <a class="dropdown-item" href="javascript:void(0);" *ngIf="indSubtask.subtaskStatus.toLowerCase() != 'testing'" (click)="changeSubtaskStatus(indSubtask._id,'Testing')">Testing</a>
+                    <a class="dropdown-item" href="javascript:void(0);" *ngIf="indSubtask.subtaskStatus.toLowerCase() != 'completed'" (click)="changeSubtaskStatus(indSubtask._id,'Completed')">Completed</a>
+                    <a class="dropdown-item" href="javascript:void(0);" *ngIf="indSubtask.subtaskStatus.toLowerCase() != 'cancelled'" (click)="changeSubtaskStatus(indSubtask._id,'Cancelled')">Cancelled</a>
+                  </div>
+                </div>
+                <div class="card-body ">
+                  <p class="card-text">{{indSubtask.subtaskDescription}}</p>
+                </div>
+              </div>
+          </ng-container>
+          <ng-template #nosubtaskblock>
+            <div class="alert alert-secondary" role="alert">
+                No Subtasks Found !!!
+              </div>
+          </ng-template>
+          <button class="btn btn-secondary addsubtaskbtn"  data-toggle="modal" data-target="#createSubtaskModal">+</button>
+      </div>
+  </div>
+    <div class="spinner-block" *ngIf="showMainSpinner">
+      <div class="spinner-border m-5 custom-spinner" role="status">
+        <span class="sr-only text-white">Loading...</span>
+      </div>
+    </div>
+  </div>
+  
+  
+  
+  <div class="modal fade" id="createTaskModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Add New Task</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <input type="text" class="form-control" [(ngModel)]="taskHeading" name="taskHeading" placeholder="Enter Task Heading">
+            </div>
+            <div class="form-group">
+              <input type="text" class="form-control" [(ngModel)]="taskDescription"  name="taskDescription" placeholder="Enter Task Description">
+            </div>
+            <button type="button" class="btn btn-success pull-right" data-dismiss="modal" (click)="createnewTask()">Add Task</button>
+            <button type="button" class="btn btn-danger pull-right mr-2" data-dismiss="modal">Cancel</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal fade" id="createSubtaskModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Add New Subtask</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <input type="text" class="form-control" [(ngModel)]="subtaskHeading" name="subtaskHeading" placeholder="Enter Subtask Heading">
+            </div>
+            <div class="form-group">
+              <textarea type="text" class="form-control" [(ngModel)]="subtaskDescription"  name="subtaskDescription" placeholder="Enter Subtask Description"></textarea>
+            </div>
+            <button type="button" class="btn btn-success pull-right" data-dismiss="modal" (click)="createnewSubtask()">Add Subtask</button>
+            <button type="button" class="btn btn-danger pull-right mr-2" data-dismiss="modal">Cancel</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal fade" id="deleteSubtaskModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <p> Are you sure about deleting this Subtask ? </p>
+            </div>
+            <button type="button" class="btn btn-success pull-right" (click)="deleteSubtask()" data-dismiss="modal">Yes, Delete It</button>
+            <button type="button" class="btn btn-danger pull-right mr-2" data-dismiss="modal">No, Cancel It</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  
+  </div>
+
+  <div class="modal fade" id="updateSubtaskModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Update Subtask</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <input type="text" class="form-control" [(ngModel)]="udpateSubtaskHeading" name="udpateSubtaskHeading" placeholder="Enter Subtask Heading">
+            </div>
+            <div class="form-group">
+              <textarea type="text" class="form-control" [(ngModel)]="updateSubtaskDescription"  name="updateSubtaskDescription" placeholder="Enter Subtask Description"></textarea>
+            </div>
+            <div class="input-group mb-3">
+              <select [(ngModel)]="updateSubtaskStatus" class="custom-select" name="updateSubtaskStatus" id="inputGroupSelect01">
+                <option value="Pending" >Pending</option>
+                <option value="WIP">WIP</option>
+                <option value="Testing">Testing</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </div>
+            <button type="button" class="btn btn-success pull-right" data-dismiss="modal" (click)="updateSubtask()">Update Subtask</button>
+            <button type="button" class="btn btn-danger pull-right mr-2" data-dismiss="modal">Cancel</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button id="updateSubtaskBtn" data-toggle="modal" data-target="#updateSubtaskModal" style="display:none;"></button>
+  
+  
+  

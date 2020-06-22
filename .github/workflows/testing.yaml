@@ -1,6 +1,11 @@
+name: Testing-workflow
+
+on: push 
+
 jobs:
   my-job:
     name: Testing-todo
+    runs-on: ubuntu-latest
     steps:
     - name: Print a greeting
       env:
